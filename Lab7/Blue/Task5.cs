@@ -1,3 +1,6 @@
+using System.ComponentModel.Design;
+using static Lab7.Blue.Task5;
+
 namespace Lab7.Blue
 {
     public class Task5
@@ -6,125 +9,117 @@ namespace Lab7.Blue
         {
             private string _name;
             private string _surname;
-            private int _place;
-
+            private int _place = 0;
             public string Name => _name;
             public string Surname => _surname;
             public int Place => _place;
-
-            public Sportsman(string name, string surname)
+            public Sportsman(string Name, string Surname)
             {
-                _name = name;
-                _surname = surname;
-                _place = 0; 
+                _name = Name;
+                _surname = Surname;
             }
-
             public void SetPlace(int place)
             {
-                if (_place == 0 && place >= 1 && place <= 18)
+                if (_place == 0)
                 {
                     _place = place;
                 }
             }
-
             public void Print()
             {
-                Console.WriteLine($"Имя: {Name} {Surname}, Место: {Place}");
+                Console.WriteLine($"Name: {Name} {Surname}, Place: {Place}");
             }
-        }
 
+        }
         public struct Team
         {
             private string _name;
-            private List<Sportsman> _sportsmenList;
-
+            private Sportsman[] _sportsmens;
             public string Name => _name;
-            public Sportsman[] Sportsmen => _sportsmenList.ToArray();
+            public Sportsman[] Sportsmen
+            {
+                get
+                {
+                    Sportsman[] copy = new Sportsman[_sportsmens.Length];
+                    Array.Copy(_sportsmens, 0, copy, 0, _sportsmens.Length);
+                    return copy;
+                }
+            }
 
             public int TotalScore
             {
                 get
                 {
-                    int[] scoreTable = { 0, 5, 4, 3, 2, 1 }; 
-                    int total = 0;
-
-                    foreach (var sportsman in _sportsmenList)
+                    int sum = 0;
+                    foreach (Sportsman sportsmen in _sportsmens)
                     {
-                        if (sportsman.Place >= 1 && sportsman.Place <= 5)
-                        {
-                            total += scoreTable[sportsman.Place];
-                        }
+                        if (sportsmen.Place == 1) { sum += 5; }
+                        else if (sportsmen.Place == 2) { sum += 4; }
+                        else if (sportsmen.Place == 3) { sum += 3; }
+                        else if (sportsmen.Place == 4) { sum += 2; }
+                        else if (sportsmen.Place == 5) { sum += 1; }
+                        ;
                     }
-                    return total;
+                    return sum;
                 }
             }
-
             public int TopPlace
             {
                 get
                 {
-                    int minPlace = int.MaxValue;
-                    foreach (var sportsman in _sportsmenList)
+                    int topplace = 100;
+                    foreach (Sportsman sportsmen in _sportsmens)
                     {
-                        if (sportsman.Place > 0 && sportsman.Place < minPlace)
-                        {
-                            minPlace = sportsman.Place;
-                        }
+                        if (sportsmen.Place > 0) topplace = int.Min(topplace, sportsmen.Place);
                     }
-                    return minPlace == int.MaxValue ? 0 : minPlace;
+
+                    Console.WriteLine($"Top Place: {topplace}");
+                    return topplace;
                 }
             }
 
-            public Team(string name)
+            public Team(string Name)
             {
-                _name = name;
-                _sportsmenList = new List<Sportsman>();
-            }
+                _name = Name;
+                _sportsmens = [];
 
-            public void Add(Sportsman sportsman)
+            }
+            public void Add(Sportsman Name)
             {
-                if (_sportsmenList.Count < 6)
+                if (_sportsmens.Length < 6)
                 {
-                    _sportsmenList.Add(sportsman);
-                }
-                else
-                {
-                    Console.WriteLine("Команда уже заполнена ");
+                    Array.Resize(ref _sportsmens, _sportsmens.Length + 1);
+                    _sportsmens[_sportsmens.Length - 1] = Name;
                 }
             }
-
-            public void Add(IEnumerable<Sportsman> sportsmen)
+            public void Add(Sportsman[] Names)
             {
-                foreach (var s in sportsmen)
+                foreach (Sportsman sportsmen in Names)
                 {
-                    Add(s);
+                    Add(sportsmen);
                 }
             }
 
             public static void Sort(Team[] teams)
             {
-                if (teams == null || teams.Length == 0) return;
-
+                if (teams == null) return;
                 Array.Sort(teams, (a, b) =>
                 {
-                    int scoreComparison = b.TotalScore.CompareTo(a.TotalScore);
-                    if (scoreComparison != 0)
-                        return scoreComparison;
-
-                    return a.TopPlace.CompareTo(b.TopPlace);
+                    if (a.TotalScore != b.TotalScore)
+                        return b.TotalScore.CompareTo(a.TotalScore);
+                    else
+                        return a.TopPlace.CompareTo(b.TopPlace);
                 });
             }
-
             public void Print()
             {
-                Console.WriteLine($"Команда: {Name}, Баллы: {TotalScore}, Лучшее место: {TopPlace}");
-                foreach (var sportsman in _sportsmenList)
+                Console.WriteLine($"Team: {Name}, Total Score: {TotalScore}");
+                foreach (Sportsman sportsmen in _sportsmens)
                 {
-                    sportsman.Print();
+                    sportsmen.Print();
                 }
-                Console.WriteLine();
             }
         }
-
     }
+
 }
